@@ -28,6 +28,14 @@ class AssistedViewModelFactoryGenerator(
         }
 
     fun createFactoryTypeSpec(): TypeSpec {
+        /*
+            example)
+
+            @AssistedFactory
+            public interface AssistedViewModelFactory {
+                public fun create(id: String, names: List<String>): AssistedViewModel
+            }
+         */
         return TypeSpec.interfaceBuilder("${viewModelClass}Factory")
             .addFunction(
                 FunSpec.builder("create")
@@ -45,12 +53,38 @@ class AssistedViewModelFactoryGenerator(
     }
 
     fun createFactoryFunSpec(): FunSpec {
-        val createFunctionName = "create$camelViewModelClassName"
+        /*
+            example)
+
+            public fun createAssistedViewModel(
+                id: String,
+                names: List<String>
+            ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                public override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                    assistedViewModelFactory.create(id, names) as T
+            }
+        */
+        return FunSpec.builder("create$viewModelClass")
+            .apply {
+                assistedConstructorParameters.forEach {
+                    addParameter(it.name, it.type)
+                }
+            }
+            .addCode("return %L", anonymousViewModelProviderFactory())
+            .returns(TypeNames.VIEW_MODEL_FACTORY)
+            .build()
+    }
+
+    private val camelViewModelClassName: String =
+        viewModelClass.toString().replaceFirstChar { it.lowercase() }
+
+    private fun anonymousViewModelProviderFactory(): TypeSpec {
         val parametersString = assistedConstructorParameters.joinToString(
             ", "
         ) { it.name }
         val typeParameter = TypeVariableName("T", listOf(TypeNames.VIEW_MODEL))
-        val viewModelProviderFactory = TypeSpec.anonymousClassBuilder()
+        return TypeSpec.anonymousClassBuilder()
             .addSuperinterface(TypeNames.VIEW_MODEL_FACTORY)
             .addFunction(
                 FunSpec.builder("create")
@@ -70,18 +104,5 @@ class AssistedViewModelFactoryGenerator(
                     .build()
             )
             .build()
-
-        return FunSpec.builder(createFunctionName)
-            .apply {
-                assistedConstructorParameters.forEach {
-                    addParameter(it.name, it.type)
-                }
-            }
-            .addCode("return %L", viewModelProviderFactory)
-            .returns(TypeNames.VIEW_MODEL_FACTORY)
-            .build()
     }
-
-    private val camelViewModelClassName: String =
-        viewModelClass.toString().replaceFirstChar { it.lowercase() }
 }

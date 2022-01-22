@@ -50,14 +50,14 @@ public class AssistedViewModelFactories @Inject constructor(
     private val assistedViewModelFactory: AssistedViewModelFactory,
     private val assistedViewModel2Factory: AssistedViewModel2Factory
 ) {
-    public fun createassistedViewModel(exampleId: String, names: List<String>):
+    public fun createAssistedViewModel(exampleId: String, names: List<String>):
             ViewModelProvider.Factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         public override fun <T : ViewModel> create(modelClass: Class<T>): T =
             assistedViewModelFactory.create(exampleId, names) as T
     }
 
-    public fun createassistedViewModel2(id: Long): ViewModelProvider.Factory = object :
+    public fun createAssistedViewModel2(id: Long): ViewModelProvider.Factory = object :
         ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         public override fun <T : ViewModel> create(modelClass: Class<T>): T =
@@ -75,11 +75,11 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var factories: AssistedViewModelFactories
 
     private val viewModel: AssistedViewModel by viewModels {
-        factories.createassistedViewModel("1", listOf("a", "b", "c"))
+        factories.createAssistedViewModel("1", listOf("a", "b", "c"))
     }
 
     private val viewModel2: AssistedViewModel2 by viewModels {
-        factories.createassistedViewModel2(7L)
+        factories.createAssistedViewModel2(7L)
     }
 }
 ```

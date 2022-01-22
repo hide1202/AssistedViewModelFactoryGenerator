@@ -14,11 +14,11 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var factories: AssistedViewModelFactories
 
     private val viewModel: AssistedViewModel by viewModels {
-        factories.createassistedViewModel("1", listOf("a", "b", "c"))
+        factories.createAssistedViewModel("1", listOf("a", "b", "c"))
     }
 
     private val viewModel2: AssistedViewModel2 by viewModels {
-        factories.createassistedViewModel2(7L)
+        factories.createAssistedViewModel2(7L)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
