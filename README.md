@@ -1,17 +1,22 @@
 # Assisted ViewModel Factory Generator
+
 ## Problem
+
 - Needs boilerplate codes for `ViewModel` with `AssistedInject`
-  - Write factory interface with `@AssistedFactory`
-  - Write `ViewModel.Factory` with `AssistedFactory`
+    - Write factory interface with `@AssistedFactory`
+    - Write `ViewModel.Factory` with `AssistedFactory`
 - Needs injecting each all factories to Activity/Fragment
 
 ## Solutions
+
 - Generate `AssistedFactory` interfaces
 - Generate a container with generated `AssistedFactories`
 - Only injecting a previous generated container to Activity/Fragment
 
 ## Example
+
 ### ViewModels
+
 ```kotlin
 class AssistedViewModel @AssistedInject constructor(
     repository: ExampleRepository,
@@ -28,34 +33,53 @@ class AssistedViewModel2 @AssistedInject constructor(
 ```
 
 ### Generated factories
+
 ```kotlin
 @AssistedFactory
 public interface AssistedViewModelFactory {
-  public fun create(exampleId: String, names: List<String>): AssistedViewModel
+    public fun create(exampleId: String, names: List<String>): AssistedViewModel
 }
 
 @AssistedFactory
 public interface AssistedViewModel2Factory {
-  public fun create(id: Long): AssistedViewModel2
+    public fun create(id: Long): AssistedViewModel2
 }
 
 @Singleton
 public class AssistedViewModelFactories @Inject constructor(
-  private val assistedViewModelFactory: AssistedViewModelFactory,
-  private val assistedViewModel2Factory: AssistedViewModel2Factory
+    private val assistedViewModelFactory: AssistedViewModelFactory,
+    private val assistedViewModel2Factory: AssistedViewModel2Factory
 ) {
-  public fun createassistedViewModel(exampleId: String, names: List<String>):
-      ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    public override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        assistedViewModelFactory.create(exampleId, names) as T
-  }
+    public fun createassistedViewModel(exampleId: String, names: List<String>):
+            ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        public override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            assistedViewModelFactory.create(exampleId, names) as T
+    }
 
-  public fun createassistedViewModel2(id: Long): ViewModelProvider.Factory = object :
-      ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    public override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        assistedViewModel2Factory.create(id) as T
-  }
+    public fun createassistedViewModel2(id: Long): ViewModelProvider.Factory = object :
+        ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        public override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            assistedViewModel2Factory.create(id) as T
+    }
+}
+```
+
+### Use
+
+```kotlin
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+    @Inject
+    internal lateinit var factories: AssistedViewModelFactories
+
+    private val viewModel: AssistedViewModel by viewModels {
+        factories.createassistedViewModel("1", listOf("a", "b", "c"))
+    }
+
+    private val viewModel2: AssistedViewModel2 by viewModels {
+        factories.createassistedViewModel2(7L)
+    }
 }
 ```
