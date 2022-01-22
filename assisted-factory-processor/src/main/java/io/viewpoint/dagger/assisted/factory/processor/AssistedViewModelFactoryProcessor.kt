@@ -38,7 +38,7 @@ class AssistedViewModelFactoryProcessor(
                     val packageName = typeDeclaration.packageName.asString()
                     val typeName = typeDeclaration.simpleName.asString()
 
-                    packageName == "androidx.lifecycle" && typeName == "ViewModel"
+                    packageName == TypeNames.VIEW_MODEL.packageName && typeName == TypeNames.VIEW_MODEL.simpleName
                 }
             if (!isConstructor || !isViewModel) {
                 continue
@@ -62,8 +62,9 @@ class AssistedViewModelFactoryProcessor(
                 factoryProperties.add(paramName to ClassName(packageName, typeName))
             }
 
+        val factoriesClassName = "AssistedViewModelFactories"
         val fileSpec =
-            FileSpec.builder(packageName, "Factories")
+            FileSpec.builder(packageName, factoriesClassName)
                 .apply {
                     generatorList
                         .map { it.createFactoryTypeSpec() }
@@ -71,8 +72,7 @@ class AssistedViewModelFactoryProcessor(
                             addType(it)
                         }
                 }
-                .addImport("androidx.lifecycle", "ViewModel")
-                .addType(TypeSpec.classBuilder("Factories")
+                .addType(TypeSpec.classBuilder(factoriesClassName)
                     .addAnnotation(Singleton::class)
                     .primaryConstructor(FunSpec.constructorBuilder()
                         .addAnnotation(Inject::class)

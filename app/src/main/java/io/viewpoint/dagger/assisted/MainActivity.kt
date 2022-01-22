@@ -11,7 +11,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    internal lateinit var factories: Factories
+    internal lateinit var factories: AssistedViewModelFactories
 
     private val viewModel: AssistedViewModel by viewModels {
         factories.createassistedViewModel("1", listOf("a", "b", "c"))
