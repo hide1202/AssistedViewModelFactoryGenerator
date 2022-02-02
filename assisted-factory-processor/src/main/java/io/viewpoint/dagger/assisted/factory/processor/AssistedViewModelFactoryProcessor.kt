@@ -9,6 +9,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.writeTo
+import dagger.assisted.AssistedInject
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,13 +22,14 @@ class AssistedViewModelFactoryProcessor(
     override fun process(resolver: Resolver): List<KSAnnotated> {
         logger.warn("start processor!")
 
-        val symbols = resolver.getSymbolsWithAnnotation(ASSISTED_INJECT_CLASS_NAME)
+        val symbols =
+            resolver.getSymbolsWithAnnotation(requireNotNull(AssistedInject::class.qualifiedName))
         if (symbols.none()) {
             return emptyList()
         }
 
         val generatorList = mutableListOf<AssistedViewModelFactoryGenerator>()
-        for (type in resolver.getSymbolsWithAnnotation(ASSISTED_INJECT_CLASS_NAME)) {
+        for (type in symbols) {
             val targetConstructor = type as? KSFunctionDeclaration ?: continue
             val viewModelClass = type.parent as? KSClassDeclaration ?: continue
 
@@ -109,11 +111,6 @@ class AssistedViewModelFactoryProcessor(
         fileSpec.writeTo(codeGenerator, Dependencies(true, *dependenciesFiles.toTypedArray()))
 
         return emptyList()
-    }
-
-    companion object {
-        private const val ASSISTED_CLASS_NAME = "dagger.assisted.Assisted"
-        private const val ASSISTED_INJECT_CLASS_NAME = "dagger.assisted.AssistedInject"
     }
 }
 
