@@ -3,6 +3,7 @@ package io.viewpoint.dagger.assisted.factory.processor
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -26,6 +27,8 @@ class AssistedViewModelFactoryGenerator(
         .map { param ->
             ParameterInfo(requireNotNull(param.name?.asString()), param.type.toTypeName())
         }
+
+    val containingFile: KSFile? = viewModelClass.containingFile
 
     fun createFactoryTypeSpec(): TypeSpec {
         /*

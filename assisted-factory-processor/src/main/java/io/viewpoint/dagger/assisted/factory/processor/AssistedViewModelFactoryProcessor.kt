@@ -102,7 +102,11 @@ class AssistedViewModelFactoryProcessor(
                 .build()
 
         val codeGenerator = environment.codeGenerator
-        fileSpec.writeTo(codeGenerator, Dependencies.ALL_FILES)
+        val dependenciesFiles = generatorList
+            .mapNotNull {
+                it.containingFile
+            }
+        fileSpec.writeTo(codeGenerator, Dependencies(true, *dependenciesFiles.toTypedArray()))
 
         return emptyList()
     }
