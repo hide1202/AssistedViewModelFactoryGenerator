@@ -1,11 +1,8 @@
 package io.viewpoint.dagger.assisted.factory.processor
 
 import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.writeTo
@@ -22,31 +19,15 @@ class AssistedViewModelFactoryProcessor(
     override fun process(resolver: Resolver): List<KSAnnotated> {
         logger.warn("start processor!")
 
-        val symbols =
-            resolver.getSymbolsWithAnnotation(requireNotNull(AssistedInject::class.qualifiedName))
-        if (symbols.none()) {
-            return emptyList()
-        }
-
-        val generatorList = mutableListOf<AssistedViewModelFactoryGenerator>()
-        for (type in symbols) {
-            val targetConstructor = type as? KSFunctionDeclaration ?: continue
-            val viewModelClass = type.parent as? KSClassDeclaration ?: continue
-
-            val isConstructor = targetConstructor.isConstructor()
-            val isViewModel = viewModelClass.superTypes
-                .any {
-                    val typeDeclaration = it.resolve().declaration
-                    val packageName = typeDeclaration.packageName.asString()
-                    val typeName = typeDeclaration.simpleName.asString()
-
-                    packageName == TypeNames.VIEW_MODEL.packageName && typeName == TypeNames.VIEW_MODEL.simpleName
-                }
-            if (!isConstructor || !isViewModel) {
-                continue
+        val viewModelVisitor = ViewModelVisitor()
+        val generatorList = resolver
+            .getSymbolsWithAnnotation(requireNotNull(AssistedInject::class.qualifiedName))
+            .mapNotNull {
+                it.accept(viewModelVisitor, Unit)
             }
-
-            generatorList.add(AssistedViewModelFactoryGenerator(viewModelClass, targetConstructor))
+            .toList()
+        if (generatorList.none()) {
+            return emptyList()
         }
 
         // TODO 패키지 변경
