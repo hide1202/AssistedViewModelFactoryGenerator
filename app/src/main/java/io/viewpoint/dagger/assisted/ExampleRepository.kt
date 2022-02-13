@@ -1,7 +1,9 @@
 package io.viewpoint.dagger.assisted
 
+import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class ExampleRepository @Inject constructor()
+@ViewModelScoped
+class ExampleRepository @Inject constructor() {
+    var value: Long = 0L
+}

@@ -5,8 +5,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 class AssistedViewModel @AssistedInject constructor(
-    repository: ExampleRepository,
+    private val repository: ExampleRepository,
     @Assisted val exampleId: String,
     @Assisted val names: List<String>
 ) : ViewModel() {
+    init {
+        // check whether instance is same or not when the property has ViewModelScoped
+        repository.value++
+    }
+
+    val value: Long
+        get() = repository.value
 }

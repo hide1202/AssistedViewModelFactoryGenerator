@@ -7,4 +7,8 @@ import dagger.assisted.AssistedInject
 class AssistedViewModel2 @AssistedInject constructor(
     repository: ExampleRepository,
     @Assisted val id: Long,
-) : ViewModel()
+) : ViewModel() {
+    init {
+        repository.value++
+    }
+}

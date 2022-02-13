@@ -5,13 +5,11 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject
-    internal lateinit var factories: AssistedViewModelFactories
+    private val factories: AssistedViewModelFactoryViewModel by viewModels()
 
     private val viewModel: AssistedViewModel by viewModels {
         factories.createAssistedViewModel("1", listOf("a", "b", "c"))
@@ -28,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "viewModel.exampleId: ${viewModel.exampleId}")
         Log.d(TAG, "viewModel.names: ${viewModel.names}")
         Log.d(TAG, "viewModel2.id: ${viewModel2.id}")
+        Log.d(TAG, "viewModel.value: ${viewModel.value}")
     }
 
     companion object {

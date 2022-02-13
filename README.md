@@ -45,11 +45,11 @@ public interface AssistedViewModel2Factory {
     public fun create(id: Long): AssistedViewModel2
 }
 
-@Singleton
-public class AssistedViewModelFactories @Inject constructor(
+@HiltViewModel
+public class AssistedViewModelFactoryViewModel @Inject constructor(
     private val assistedViewModelFactory: AssistedViewModelFactory,
     private val assistedViewModel2Factory: AssistedViewModel2Factory
-) {
+) : ViewModel() {
     public fun createAssistedViewModel(exampleId: String, names: List<String>):
             ViewModelProvider.Factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -71,8 +71,7 @@ public class AssistedViewModelFactories @Inject constructor(
 ```kotlin
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    @Inject
-    internal lateinit var factories: AssistedViewModelFactories
+    private val factories: AssistedViewModelFactoryViewModel by viewModels()
 
     private val viewModel: AssistedViewModel by viewModels {
         factories.createAssistedViewModel("1", listOf("a", "b", "c"))

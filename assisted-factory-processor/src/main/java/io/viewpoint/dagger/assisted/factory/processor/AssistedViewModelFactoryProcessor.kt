@@ -8,7 +8,6 @@ import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.writeTo
 import dagger.assisted.AssistedInject
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class AssistedViewModelFactoryProcessor(
     private val environment: SymbolProcessorEnvironment
@@ -45,7 +44,7 @@ class AssistedViewModelFactoryProcessor(
                 factoryProperties.add(paramName to ClassName(packageName, typeName))
             }
 
-        val factoriesClassName = "AssistedViewModelFactories"
+        val factoriesClassName = "AssistedViewModelFactoryViewModel"
         val fileSpec =
             FileSpec.builder(packageName, factoriesClassName)
                 .apply {
@@ -56,7 +55,7 @@ class AssistedViewModelFactoryProcessor(
                         }
                 }
                 .addType(TypeSpec.classBuilder(factoriesClassName)
-                    .addAnnotation(Singleton::class)
+                    .addAnnotation(TypeNames.HILT_VIEW_MODEL)
                     .primaryConstructor(FunSpec.constructorBuilder()
                         .addAnnotation(Inject::class)
                         .apply {
@@ -66,6 +65,7 @@ class AssistedViewModelFactoryProcessor(
                         }
                         .build()
                     )
+                    .superclass(TypeNames.VIEW_MODEL)
                     .apply {
                         factoryProperties.forEach { (name, className) ->
                             addProperty(
